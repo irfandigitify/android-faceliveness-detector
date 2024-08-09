@@ -1,0 +1,13 @@
+<!-- res/values/attrs.xml -->
+<resources>
+    <declare-styleable name="MultiLevelCircularProgressBar">
+        <attr name="colorLeft" format="color"/>
+        <attr name="colorRight" format="color"/>
+        <attr name="colorUp" format="color"/>
+        <attr name="colorDown" format="color"/>
+        <attr name="colorEmpty" format="color"/>
+        <attr name="strokeWidth" format="dimension"/>
+        <attr name="gap" format="dimension"/>
+    </declare-styleable>
+    <declare-styleable name="CircularProgressBar"></declare-styleable>
+</resources>

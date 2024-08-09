@@ -1,0 +1,25 @@
+
+9
+	README.md,8\e\8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d
+â
+Yapp/src/main/java/com/google/mediapipe/examples/facelandmarker/fragment/CameraFragment.kt,8\b\8b8c9d3a650c247bd78470e48ef2f26cc94d5bd6
+Ö
+Uapp/src/main/java/com/google/mediapipe/examples/facelandmarker/CircularProgressBar.kt,8\e\8eaef9c0f76fa9e3a897b6e64f9ba296b3cef6b9
+}
+Mapp/src/main/java/com/google/mediapipe/examples/facelandmarker/OverlayView.kt,5\5\55361b35eef6b886d0488d6a3ed1527180d3a78e
+è
+_app/src/main/java/com/google/mediapipe/examples/facelandmarker/MultiLevelCircularProgressBar.kt,3\3\33ec1668ca070eb45a044d91690c805486ff49fd
+Ü
+Vapp/src/main/java/com/google/mediapipe/examples/facelandmarker/FaceLandmarkerHelper.kt,f\b\fb6ba7742960d576a47f2f5e92a38f118aa00ec3
+
+Oapp/src/main/java/com/google/mediapipe/examples/facelandmarker/MainViewModel.kt,b\c\bc6a762915a40e9735a9b1a1a3fc4e441097687e
+~
+Napp/src/main/java/com/google/mediapipe/examples/facelandmarker/MainActivity.kt,b\f\bffb816dc774a305965b13f764924f2f754a60e8
+ó
+gapp/src/main/java/com/google/mediapipe/examples/facelandmarker/fragment/FaceBlendshapesResultAdapter.kt,f\2\f2d34137979501598c13d94bf8feb459bf356535
+@
+app/build.gradle,f\4\f4a01d6a4fcb971362ec00a83903fd3902f52164
+I
+app/download_tasks.gradle,4\8\4892b709b8b0c805c307553b2507d674d5192478
+â
+Yapp/src/main/java/com/google/mediapipe/examples/facelandmarker/FacePoseDetectionHelper.kt,f\a\fa1dfd0ed015a8aeba3120dccc727247f7a4db34

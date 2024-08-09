@@ -1,0 +1,10 @@
+
+„kotlin:S6532—"¿Replace this if expression with require(runningMode == RunningMode.LIVE_STREAM) { "Attempting to call detectLiveStream" +
+                        " while not using RunningMode.LIVE_STREAM" }.(§îáÃüÿÿÿÿJ$86a8acb9-08b3-4fae-a36a-39a9a4dffc7f
+òkotlin:S6532Ò"²Replace this if expression with require(runningMode == RunningMode.VIDEO) { "Attempting to call detectVideoFile" +
+                        " while not using RunningMode.VIDEO" }.(·¿Ð«J$9abcc8a7-85e4-496b-b9db-5f4bafddf796
+ókotlin:S6532©"®Replace this if expression with require(runningMode == RunningMode.IMAGE) { "Attempting to call detectImage" +
+                        " while not using RunningMode.IMAGE" }.(ÓûÍìýÿÿÿÿJ$7af21fde-833c-4509-b36d-d92b25aceede
+ßkotlin:S6532Y"›Replace this if expression with checkNotNull(faceLandmarkerHelperListener) { "faceLandmarkerHelperListener must be set when runningMode is LIVE_STREAM." }.(²šä‹ýÿÿÿÿJ$76c41bb1-043a-4995-a0fe-41556fa36613
+pkotlin:S6529Ð"1Replace collection size check with "isNotEmpty()"(ìŸä›J$49c360d4-14e1-4d60-88a7-e42a73281ce4
+™kotlin:S1186Š"ZAdd a nested comment explaining why this function is empty or complete the implementation.(ìí›þJ$df817a28-2313-4cbd-a992-159a849bcc2a
