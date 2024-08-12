@@ -78,10 +78,6 @@ class MainViewModel : ViewModel() {
                 val chin = landmarks[152]
                 val forehead = landmarks[10]
 
-
-                Log.d("TAG145", "checkHeadRotation:${noseTip} ---- ${leftEyeOuter} ")
-//               Check horizontal rotation
-
                 val horizontalRotation = when {
                     noseTip.x() > rightEyeOuter.x() -> "left"
                     leftEyeOuter.x() > noseTip.x() -> "right"
