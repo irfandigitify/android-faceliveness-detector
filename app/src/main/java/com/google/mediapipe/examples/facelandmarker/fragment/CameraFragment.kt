@@ -62,6 +62,12 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.jvm.optionals.toList
 import kotlin.math.roundToInt
+import android.graphics.Bitmap
+import android.media.MediaCodec
+import android.media.MediaCodecInfo
+import android.media.MediaFormat
+import android.media.MediaMuxer
+import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
 
 class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
 
@@ -87,10 +93,7 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
     private lateinit var cameraControl: CameraControl
     private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     lateinit var progressBar :MultiLevelCircularProgressBar
-    lateinit var leftProgressBar: TextView
-    lateinit var rightProgressBar: TextView
-    lateinit var upProgressBar: TextView
-    lateinit var downProgressBar: TextView
+
 
 
 
@@ -161,16 +164,11 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = faceBlendshapesResultAdapter
         }
-        val animationView = view.findViewById<LottieAnimationView>(R.id.animationView)
+//        val animationView = view.findViewById<LottieAnimationView>(R.id.animationView)
         val frameLayout = view.findViewById<FrameLayout>(R.id.frameLayout)
         // Initialize our background executor
         backgroundExecutor = Executors.newSingleThreadExecutor()
         progressBar = view.findViewById<MultiLevelCircularProgressBar>(R.id.circularProgressBar)
-        leftProgressBar = view.findViewById<TextView>(R.id.left_text)
-        rightProgressBar = view.findViewById<TextView>(R.id.right_text)
-        upProgressBar = view.findViewById<TextView>(R.id.Up_text)
-        downProgressBar = view.findViewById<TextView>(R.id.down_text)
-
 
         // Set progress for the segments (0 to 100)
 
@@ -421,7 +419,6 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
             Log.e(TAG, "Use case binding failed", exc)
         }
     }
-
     private fun detectFace(imageProxy: ImageProxy) {
         faceLandmarkerHelper.detectLiveStream(
             imageProxy = imageProxy,
@@ -445,9 +442,9 @@ class CameraFragment : Fragment(), FaceLandmarkerHelper.LandmarkerListener {
             if (_fragmentCameraBinding != null) {
                 if (fragmentCameraBinding.recyclerviewResults.scrollState != SCROLL_STATE_DRAGGING) {
                     faceBlendshapesResultAdapter.updateResults(resultBundle.result)
-                    viewModel.checkHeadRotation(resultBundle.result,leftProgressBar,rightProgressBar,upProgressBar,downProgressBar,progressBar)
+                    viewModel.checkHeadRotation(resultBundle.result,progressBar)
                     faceBlendshapesResultAdapter.notifyDataSetChanged()
-                    resestProgressBar()
+//                    resestProgressBar()
                 }
 
 

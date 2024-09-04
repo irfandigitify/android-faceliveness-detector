@@ -67,7 +67,7 @@ class MainViewModel : ViewModel() {
     fun setMaxFaces(maxResults: Int) {
         _maxFaces = maxResults
     }
-    fun checkHeadRotation(faceLandmarkerResult: FaceLandmarkerResult?, left: TextView, right: TextView, up: TextView, down: TextView, progressBar: MultiLevelCircularProgressBar) {
+    fun checkHeadRotation(faceLandmarkerResult: FaceLandmarkerResult?, progressBar: MultiLevelCircularProgressBar) {
         if (faceLandmarkerResult != null && faceLandmarkerResult.faceLandmarks().isNotEmpty()) {
             val landmarks = faceLandmarkerResult.faceLandmarks().get(0)
 
@@ -93,17 +93,13 @@ class MainViewModel : ViewModel() {
                     else -> "center"
                 }
                 when (horizontalRotation) {
-                    "left" -> leftProgressValue += 1
-                    "right" -> rightProgressValue += 1
+                    "left" -> leftProgressValue += 5
+                    "right" ->  downProgressValue+= 5
                 }
                 when (verticalRotation) {
-                    "up" -> upProgressValue += 1
-                    "down" -> downProgressValue += 1
+                    "up" -> rightProgressValue += 5
+                    "down" -> upProgressValue += 5
                 }
-                left.text = leftProgressValue.toString()
-                right.text = rightProgressValue.toString()
-                up.text = upProgressValue.toString()
-                down.text = downProgressValue.toString()
 
                 progressBar.progressLeft=leftProgressValue.toFloat()
                 progressBar.progressRight=rightProgressValue.toFloat()

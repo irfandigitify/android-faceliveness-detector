@@ -17,8 +17,16 @@ package com.google.mediapipe.examples.facelandmarker
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
 import android.graphics.Matrix
+import android.graphics.Rect
+import android.graphics.YuvImage
+import android.media.MediaCodec
+import android.media.MediaCodecInfo
+import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
+import android.media.MediaMuxer
 import android.net.Uri
 import android.os.SystemClock
 import android.util.Log
@@ -31,6 +39,7 @@ import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarker
 import com.google.mediapipe.tasks.vision.facelandmarker.FaceLandmarkerResult
+import java.io.ByteArrayOutputStream
 
 class FaceLandmarkerHelper(
     var minFaceDetectionConfidence: Float = DEFAULT_FACE_DETECTION_CONFIDENCE,
@@ -312,6 +321,7 @@ class FaceLandmarkerHelper(
         // Run face landmarker using MediaPipe Face Landmarker API
         faceLandmarker?.detect(mpImage)?.also { landmarkResult ->
             val inferenceTimeMs = SystemClock.uptimeMillis() - startTime
+            processFrame(frame = image,landmarkResult)
             return ResultBundle(
                 landmarkResult,
                 inferenceTimeMs,
@@ -393,4 +403,207 @@ class FaceLandmarkerHelper(
 
         fun onEmpty() {}
     }
+
+
+    // Variables to track whether each movement has been captured
+    var leftYawCaptured = false
+    var rightYawCaptured = false
+    var upPitchCaptured = false
+    var downPitchCaptured = false
+
+    val capturedFrames = mutableListOf<Bitmap>()
+
+    // Thresholds for detecting head rotation
+    val yawThreshold = 0.3f  // Example threshold, adjust as needed
+    val pitchThreshold = 0.3f // Example threshold, adjust as needed
+    private fun detectFace(imageProxy: ImageProxy, faceLandmarkerResult: FaceLandmarkerResult) {
+        // Convert ImageProxy to Bitmap
+        val bitmap = imageProxy.toBitmap()
+
+        // Run face detection on the bitmap
+
+
+        // If face detection is successful, process the frame
+        faceLandmarkerResult?.let {
+            processFrame(bitmap, it) // Pass the bitmap and faceLandmarkerResult to processFrame
+        }
+
+        // Close the image proxy
+        imageProxy.close()
+    }
+    private fun ImageProxy.toBitmap(): Bitmap {
+        val yBuffer = planes[0].buffer
+        val uBuffer = planes[1].buffer
+        val vBuffer = planes[2].buffer
+
+        val ySize = yBuffer.remaining()
+        val uSize = uBuffer.remaining()
+        val vSize = vBuffer.remaining()
+
+        val nv21 = ByteArray(ySize + uSize + vSize)
+
+        yBuffer.get(nv21, 0, ySize)
+        vBuffer.get(nv21, ySize, vSize)
+        uBuffer.get(nv21, ySize + vSize, uSize)
+
+        val yuvImage = YuvImage(nv21, ImageFormat.NV21, width, height, null)
+        val out = ByteArrayOutputStream()
+        yuvImage.compressToJpeg(Rect(0, 0, width, height), 100, out)
+        val imageBytes = out.toByteArray()
+        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+    }
+    fun processFrame(frame: Bitmap, faceLandmarkerResult: FaceLandmarkerResult) {
+        val yaw = calculateYaw(faceLandmarkerResult)
+        val pitch = calculatePitch(faceLandmarkerResult)
+
+        when {
+            !leftYawCaptured && yaw < -yawThreshold -> {
+                capturedFrames.add(frame)
+                leftYawCaptured = true
+                Log.d("Capture", "Left Yaw Captured")
+            }
+            !rightYawCaptured && yaw > yawThreshold -> {
+                capturedFrames.add(frame)
+                rightYawCaptured = true
+                Log.d("Capture", "Right Yaw Captured")
+            }
+            !upPitchCaptured && pitch > pitchThreshold -> {
+                capturedFrames.add(frame)
+                upPitchCaptured = true
+                Log.d("Capture", "Up Pitch Captured")
+            }
+            !downPitchCaptured && pitch < -pitchThreshold -> {
+                capturedFrames.add(frame)
+                downPitchCaptured = true
+                Log.d("Capture", "Down Pitch Captured")
+            }
+        }
+
+        // Stop recording once all required frames are captured
+        if (leftYawCaptured && rightYawCaptured && upPitchCaptured && downPitchCaptured) {
+            saveVideo(capturedFrames)
+        }
+    }
+
+    fun calculateYaw(faceLandmarkerResult: FaceLandmarkerResult): Float {
+        val landmarks = faceLandmarkerResult.faceLandmarks()[0]
+        val noseTip = landmarks[1]
+        val leftEyeOuter = landmarks[33]
+        val rightEyeOuter = landmarks[263]
+
+        val yaw = (leftEyeOuter.x() - rightEyeOuter.x()) / (noseTip.x() - (leftEyeOuter.x() + rightEyeOuter.x()) / 2)
+        return yaw
+    }
+
+    fun calculatePitch(faceLandmarkerResult: FaceLandmarkerResult): Float {
+        val landmarks = faceLandmarkerResult.faceLandmarks()[0]
+        val noseTip = landmarks[1]
+        val chin = landmarks[152]
+        val forehead = landmarks[10]
+
+        val averageY = (forehead.y() + chin.y()) / 2
+        val pitch = (noseTip.y() - averageY) / (forehead.y() - chin.y())
+        return pitch
+    }
+
+    fun saveVideo(frames: List<Bitmap>) {
+        val width = frames[0].width
+        val height = frames[0].height
+        val outputFile = "/path/to/output.mp4"  // Change this to your desired output path
+
+        val muxer = MediaMuxer(outputFile, MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4)
+        val format = MediaFormat.createVideoFormat("video/avc", width, height)
+        format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+        format.setInteger(MediaFormat.KEY_BIT_RATE, 2000000)
+        format.setInteger(MediaFormat.KEY_FRAME_RATE, 30)
+        format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
+
+        val encoder = MediaCodec.createEncoderByType("video/avc")
+        encoder.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+        encoder.start()
+
+        val trackIndex = muxer.addTrack(encoder.outputFormat)
+        muxer.start()
+
+        frames.forEach { frame ->
+            val inputBufferIndex = encoder.dequeueInputBuffer(10000)
+            if (inputBufferIndex >= 0) {
+                val inputBuffer = encoder.getInputBuffer(inputBufferIndex)
+                inputBuffer?.clear()
+
+                val frameData = convertBitmapToNV21(frame)
+                inputBuffer?.put(frameData)
+
+                encoder.queueInputBuffer(inputBufferIndex, 0, frameData.size, System.nanoTime() / 1000, 0)
+            }
+
+            val bufferInfo = MediaCodec.BufferInfo()
+            var outputBufferIndex = encoder.dequeueOutputBuffer(bufferInfo, 10000)
+            while (outputBufferIndex >= 0) {
+                val outputBuffer = encoder.getOutputBuffer(outputBufferIndex)
+                muxer.writeSampleData(trackIndex, outputBuffer!!, bufferInfo)
+                encoder.releaseOutputBuffer(outputBufferIndex, false)
+                outputBufferIndex = encoder.dequeueOutputBuffer(bufferInfo, 0)
+            }
+        }
+
+        encoder.stop()
+        encoder.release()
+        muxer.stop()
+        muxer.release()
+        Log.d("TAG225", "saveVideo: ")
+    }
+
+    fun convertBitmapToNV21(bitmap: Bitmap): ByteArray {
+        val width = bitmap.width
+        val height = bitmap.height
+        val argb = IntArray(width * height)
+        bitmap.getPixels(argb, 0, width, 0, 0, width, height)
+
+        val yuv = ByteArray(width * height * 3 / 2)
+        encodeYUV420SP(yuv, argb, width, height)
+
+        return yuv
+    }
+
+    fun encodeYUV420SP(yuv420sp: ByteArray, argb: IntArray, width: Int, height: Int) {
+        val frameSize = width * height
+
+        var yIndex = 0
+        var uvIndex = frameSize
+
+        var a: Int
+        var R: Int
+        var G: Int
+        var B: Int
+        var Y: Int
+        var U: Int
+        var V: Int
+
+        var index = 0
+        for (j in 0 until height) {
+            for (i in 0 until width) {
+                a = (argb[index] and -0x1000000) shr 24
+                R = (argb[index] and 0xff0000) shr 16
+                G = (argb[index] and 0xff00) shr 8
+                B = argb[index] and 0xff
+
+                // well known RGB to YUV algorithm
+                Y = (66 * R + 129 * G + 25 * B + 128 shr 8) + 16
+                U = (-38 * R - 74 * G + 112 * B + 128 shr 8) + 128
+                V = (112 * R - 94 * G - 18 * B + 128 shr 8) + 128
+
+                // Clip Y, U, V to the range [0, 255]
+                yuv420sp[yIndex++] = Y.toByte()
+                if (j % 2 == 0 && i % 2 == 0) {
+                    yuv420sp[uvIndex++] = V.toByte()
+                    yuv420sp[uvIndex++] = U.toByte()
+                }
+
+                index++
+            }
+        }
+    }
+
+
 }
