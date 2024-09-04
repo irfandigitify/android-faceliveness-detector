@@ -35,6 +35,7 @@
             android:layout_height="match_parent"
             app:scaleType="fillStart" />
 
+
 <!--        <com.google.mediapipe.examples.facelandmarker.OverlayView-->
 <!--            android:id="@+id/overlay"-->
 <!--            android:layout_width="match_parent"-->
@@ -43,15 +44,6 @@
 
     </FrameLayout>
 
-    <com.airbnb.lottie.LottieAnimationView
-        android:id="@+id/animationView"
-        android:layout_width="240dp"
-        android:layout_height="240dp"
-        app:layout_anchor="@+id/frameLayout"
-        app:layout_anchorGravity="center"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true"
-        app:lottie_url="https://lottie.host/70e80d6b-ae00-4ed9-999c-3c14254cd352/K8yHa0Ouj4.json" />
 
     <com.google.mediapipe.examples.facelandmarker.MultiLevelCircularProgressBar
         android:id="@+id/circularProgressBar"
@@ -63,7 +55,7 @@
         app:colorRight="@color/design_default_color_secondary"
         app:colorUp="@color/design_default_color_primary"
         app:layout_anchor="@+id/frameLayout"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_anchorGravity="center" />
 
     <include
@@ -90,35 +82,4 @@
         app:layout_anchor="@id/recyclerview_results"
         app:layout_anchorGravity="bottom" />
 
-    <TextView
-        android:id="@+id/left_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0.0"
-        app:layout_anchor="@+id/animationView"
-        app:layout_anchorGravity="start|center" />
-
-    <TextView
-        android:id="@+id/Up_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0.0"
-        app:layout_anchor="@+id/animationView"
-        app:layout_anchorGravity="top|center" />
-
-    <TextView
-        android:id="@+id/down_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0.0"
-        app:layout_anchor="@+id/animationView"
-        app:layout_anchorGravity="bottom|center" />
-
-    <TextView
-        android:id="@+id/right_text"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="0.0"
-        app:layout_anchor="@+id/animationView"
-        app:layout_anchorGravity="end|center" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
